@@ -1,17 +1,68 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app"> 
+    <div class="quiz-body" v-if="numTotal !== 10">
+      <Header 
+      :numCorrect="numCorrect"
+      :numTotal="numTotal"
+      />
+      <b-container class="bv-example-row">
+        <b-row>
+            <b-col sm='6' offset='3'>
+              <QuestionBox 
+              v-if="questions.length"
+              :currentQuestion='questions[index]'
+              :next='next'
+              :increment='increment'
+              />
+            </b-col>
+        </b-row>
+      </b-container>
+    </div>
+    <div class="score" v-else>
+      <h1>Your Score : {{numCorrect}} </h1>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Header from './components/Header.vue';
+import QuestionBox from './components/QuestionBox.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Header,
+    QuestionBox
+  },
+  data(){
+    return {
+      questions:[],
+      index:0,
+      numCorrect:0,
+      numTotal:0,
+    }
+  },
+  methods:{
+    next(){
+      this.index++;
+    },
+    increment(isCorrect)
+    {
+      if(isCorrect)
+      {
+        this.numCorrect++;
+      }
+      this.numTotal++;
+    }
+  },
+  mounted(){
+    fetch('https://opentdb.com/api.php?amount=10&category=21&type=multiple',{
+      method:'get'
+    })
+    .then(response => response.json())
+    .then((data) => {
+      this.questions=data.results
+    })
   }
 }
 </script>
@@ -23,6 +74,5 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
